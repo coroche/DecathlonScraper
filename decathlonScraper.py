@@ -18,8 +18,6 @@ def parseURL(URL):
     combID = URL[URL.rindex("/")+8: URL.rindex("/")+14] 
     return prodID, combID
  
-parseURL("https://www.decathlon.ie/mtb-cassettes/336743-120852-10-speed-11x48-cassette-adventx.html")   
-
 def getStock(prodID, combID):
     
     instock = False
