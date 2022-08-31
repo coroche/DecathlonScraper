@@ -42,23 +42,30 @@ def getProductName(productID):
     return r.text
 
 def createMessage(instore, online, URL, model):
-    also = ""
+    also = ",\n"
+    
+    if online == 1:
+        are_is = "is "
+    else:
+        are_is = "are "
+    
     messageTxt = ""
     productName = getProductName(model)
-    messageTxt += "<a href=\"" + URL + "\">" + productName + "</a>"
-    messageTxt += "\nThere are " + str(online) + " available online"
+    link = "<a href=\"" + URL + "\">" + productName + "</a>"
+    messageTxt += "There " + are_is + str(online) + " available online"
     if len(instore) == 0:
         messageTxt += "\nand 0 available instore"
     else:
         for i in range(len(instore)):
             if i == len(instore) - 1:
-                also = "and "
-            messageTxt +="\n" + also + instore[i][1] + " available in " + instore[i][0]
-
+                also = "\nand "
+            messageTxt += also + instore[i][1] + " available in " + instore[i][0]
+    messageTxt += "."
+    
     html = """\
 <html>
   <body>
-    <p>""" + messageTxt.replace('\n', '<br>') +"""</p>
+    <p>This item is now in stock.<br>""" + link + "<br><br>" + messageTxt.replace('\n', '<br>') +"""</p>
   </body>
 </html>
 """
