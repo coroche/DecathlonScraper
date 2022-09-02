@@ -82,11 +82,11 @@ def sendEmail(html, port, smtp_server, sender_email, receiver_email, password):
         server.login(sender_email, password)
         server.sendmail(sender_email, receiver_email, message.as_string())
 
-def notifyInstock(URL, receiver_email):
+def notifyInstock(receiver_email, URL):
     prodID, combID = parseURL(URL)
     instore, online, instock, modelNo = getStock(prodID, combID)
     html, messageTxt = createMessage(instore, online, URL, modelNo)
     if instock:
         sendEmail(html, port, smtp_server, sender_email, receiver_email, password)
-    return messageTxt
+    return messageTxt, instock
 
