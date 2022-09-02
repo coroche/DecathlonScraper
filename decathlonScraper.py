@@ -41,7 +41,7 @@ def getProductName(productID):
     r = requests.request("POST", url)
     return r.text
 
-def createMessage(instore, online, URL, model):
+def createMessage(instore, online, productName, prodID, combID, model):
     also = ",\n"
     
     if online == 1:
@@ -50,8 +50,7 @@ def createMessage(instore, online, URL, model):
         are_is = "are "
     
     messageTxt = ""
-    productName = getProductName(model)
-    link = "<a href=\"" + URL + "\">" + productName + "</a>"
+    link = "<a href=\"https://www.decathlon.ie/" + prodID + "-" + combID + ".html\">" + productName + "</a>"
     messageTxt += "There " + are_is + str(online) + " available online"
     if len(instore) == 0:
         messageTxt += "\nand 0 available instore"
@@ -71,9 +70,9 @@ def createMessage(instore, online, URL, model):
 """
     return MIMEText(html, "html"), messageTxt
 
-def sendEmail(html, port, smtp_server, sender_email, receiver_email, password):
+def sendEmail(html, port, smtp_server, sender_email, receiver_email, password, productName):
     message = MIMEMultipart()
-    message["Subject"] = "Decathlon Stock Notification"
+    message["Subject"] = "Decathlon Stock Notification - " + productName
     message["From"] = sender_email
     message["To"] = receiver_email
     message.attach(html)
@@ -82,11 +81,17 @@ def sendEmail(html, port, smtp_server, sender_email, receiver_email, password):
         server.login(sender_email, password)
         server.sendmail(sender_email, receiver_email, message.as_string())
 
-def notifyInstock(receiver_email, URL):
-    prodID, combID = parseURL(URL)
+def notifyInstock(receiver_email, URL = '', prodID = '', combID = ''):
+    if not (prodID and combID) and URL:
+        prodID, combID = parseURL(URL)
+    elif not (prodID and combID) and not URL:
+        return "provide product info", False
+    
     instore, online, instock, modelNo = getStock(prodID, combID)
-    html, messageTxt = createMessage(instore, online, URL, modelNo)
+    productName = getProductName(modelNo)
+    html, messageTxt = createMessage(instore, online, productName, prodID, combID, modelNo)
     if instock:
-        sendEmail(html, port, smtp_server, sender_email, receiver_email, password)
+        sendEmail(html, port, smtp_server, sender_email, receiver_email, password, productName)
     return messageTxt, instock
+
 
