@@ -49,8 +49,8 @@ def removeWatch(SCRIPT_ID, service, email, prodID, combID):
     except errors.HttpError as error:
         print(error.content)
 
-def getActiveTrackers(SCRIPT_ID, service):
-    request = {"function": 'getActiveTrackers',
+def getActiveWatchers(SCRIPT_ID, service):
+    request = {"function": 'getActiveWatchers',
                 "parameters": [],
                 "devMode": True}
     try:

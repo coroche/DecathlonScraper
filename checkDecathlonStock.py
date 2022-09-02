@@ -6,7 +6,7 @@ def main():
     creds = googleSheetsAPI.login()
     service = googleSheetsAPI.buildService(creds)
 
-    watchList = googleSheetsAPI.getActiveTrackers(SCRIPT_ID, service)
+    watchList = googleSheetsAPI.getActiveWatchers(SCRIPT_ID, service)
 
     for watch in watchList:
         _, instock = notifyInstock(watch[0], prodID = watch[1], combID = watch[2])
