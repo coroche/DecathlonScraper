@@ -57,7 +57,3 @@ function getFirstEmptyRowByColumnArray(sheetName) {
   }
   return (ct+1);
 }
-
-function removeWatchTest() {
-  removeWatch('comroche@gmail.com', '305777', '65887')
-};
