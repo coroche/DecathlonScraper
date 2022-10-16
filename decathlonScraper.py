@@ -1,3 +1,4 @@
+from pickle import FALSE, TRUE
 import requests
 import smtplib, ssl
 from email.mime.text import MIMEText
@@ -20,7 +21,6 @@ def parseURL(URL):
  
 def getStock(prodID, combID):
     
-    instock = False
     url = "https://www.decathlon.ie/modules/decastock/decastock-ajax.php?id_product=" + prodID + "&id_combination=" + combID
 
     r = requests.request("POST", url)
@@ -30,11 +30,9 @@ def getStock(prodID, combID):
     if "stores" in data:
         for store in data["stores"]:
             if int(store["quantity"]) > 0:
-                instock = True
                 stores.append([store["name"], store["quantity"]])
-    instock = instock or (int(data["master_quantity"]) > 0)
     model = data["code_model"]
-    return stores, data["master_quantity"], instock, model
+    return stores, data["master_quantity"], model
 
 def getProductName(productID):
     url = "https://www.decathlon.ie/module/decaetlimporter/ajaxtitlerefresh?id_code_model=" + productID
@@ -81,16 +79,18 @@ def sendEmail(html, port, smtp_server, sender_email, receiver_email, password, p
         server.login(sender_email, password)
         server.sendmail(sender_email, receiver_email, message.as_string())
 
-def notifyInstock(receiver_email, URL = '', prodID = '', combID = ''):
+def notifyInstock(receiver_email, URL = '', prodID = '', combID = '', checkInStore = TRUE, checkOnline = TRUE):
     if not (prodID and combID) and URL:
         prodID, combID = parseURL(URL)
     elif not (prodID and combID) and not URL:
         return "provide product info", False
     
-    instore, online, instock, modelNo = getStock(prodID, combID)
+    instore, online, modelNo = getStock(prodID, combID)
     productName = getProductName(modelNo)
     html, messageTxt = createMessage(instore, online, productName, prodID, combID, modelNo)
-    if instock:
+    instock = False
+    if (len(instore) and checkInStore) or (online > 0 and checkOnline):
+        instock = True
         sendEmail(html, port, smtp_server, sender_email, receiver_email, password, productName)
     return messageTxt, instock
 

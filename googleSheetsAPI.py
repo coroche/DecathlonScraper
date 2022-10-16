@@ -40,9 +40,9 @@ def buildService(creds):
         print(error.content)
     return service
  
-def removeWatch(SCRIPT_ID, service, email, prodID, combID):
+def removeWatch(SCRIPT_ID, service, email, prodID, combID, checkInstore, CheckOnline):
     request = {"function": 'removeWatch',
-                "parameters": [email, prodID, combID],
+                "parameters": [email, prodID, combID, checkInstore, CheckOnline],
                 "devMode": True}
     try:
         service.scripts().run(body=request, scriptId=SCRIPT_ID).execute()
