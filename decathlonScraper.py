@@ -1,17 +1,7 @@
 from pickle import FALSE, TRUE
 import requests
-import smtplib, ssl
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
-import os
-from dotenv import load_dotenv
+from smtp import sendEmail
 
-load_dotenv()
-
-port = os.getenv('port')
-smtp_server = os.getenv('smtp_server')
-sender_email = os.getenv('sender_email') 
-password = os.getenv('password')  
 
 def parseURL(URL):
     URL = URL[0:URL.index(".html")+5]
@@ -66,18 +56,8 @@ def createMessage(instore, online, productName, prodID, combID, model):
   </body>
 </html>
 """
-    return MIMEText(html, "html"), messageTxt
+    return html, messageTxt
 
-def sendEmail(html, port, smtp_server, sender_email, receiver_email, password, productName):
-    message = MIMEMultipart()
-    message["Subject"] = "Decathlon Stock Notification - " + productName
-    message["From"] = sender_email
-    message["To"] = receiver_email
-    message.attach(html)
-    context = ssl.create_default_context()
-    with smtplib.SMTP_SSL(smtp_server, port, context=context) as server:
-        server.login(sender_email, password)
-        server.sendmail(sender_email, receiver_email, message.as_string())
 
 def notifyInstock(receiver_email, URL = '', prodID = '', combID = '', checkInStore = TRUE, checkOnline = TRUE):
     if not (prodID and combID) and URL:
@@ -91,7 +71,7 @@ def notifyInstock(receiver_email, URL = '', prodID = '', combID = '', checkInSto
     instock = False
     if (len(instore) and checkInStore) or (online > 0 and checkOnline):
         instock = True
-        sendEmail(html, port, smtp_server, sender_email, receiver_email, password, productName)
+        sendEmail(html, receiver_email, "Decathlon Stock Notification - " + productName)
     return messageTxt, instock
 
 
