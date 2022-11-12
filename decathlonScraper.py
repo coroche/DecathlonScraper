@@ -1,6 +1,7 @@
 from pickle import FALSE, TRUE
 import requests
 from smtp import sendEmail
+import json
 
 
 def parseURL(URL):
@@ -24,12 +25,15 @@ def getStock(prodID, combID):
     model = data["code_model"]
     return stores, data["master_quantity"], model
 
-def getProductName(productID):
+def getProductInfo(productID):
     url = "https://www.decathlon.ie/module/decaetlimporter/ajaxtitlerefresh?id_code_model=" + productID
     r = requests.request("POST", url)
-    return r.text
+    data = json.loads(r.text)
+    name = data['variables']['name']
+    url = data['variables']['link_change'].replace('\\', '')
+    return name, url
 
-def createMessage(instore, online, productName, prodID, combID, model):
+def createMessage(instore, online, productName, prodID, combID, model, linkURL):
     also = ",\n"
     
     if online == 1:
@@ -38,7 +42,7 @@ def createMessage(instore, online, productName, prodID, combID, model):
         are_is = "are "
     
     messageTxt = ""
-    link = "<a href=\"https://www.decathlon.ie/" + prodID + "-" + combID + ".html\">" + productName + "</a>"
+    link = "<a href=\"" + linkURL + "\">" + productName + "</a>"
     messageTxt += "There " + are_is + str(online) + " available online"
     if len(instore) == 0:
         messageTxt += "\nand 0 available instore"
@@ -66,8 +70,8 @@ def notifyInstock(receiver_email, URL = '', prodID = '', combID = '', checkInSto
         return "provide product info", False
     
     instore, online, modelNo = getStock(prodID, combID)
-    productName = getProductName(modelNo)
-    html, messageTxt = createMessage(instore, online, productName, prodID, combID, modelNo)
+    productName, linkURL = getProductInfo(modelNo)
+    html, messageTxt = createMessage(instore, online, productName, prodID, combID, modelNo, linkURL)
     instock = False
     if (len(instore) and checkInStore) or (online > 0 and checkOnline):
         instock = True

@@ -15,8 +15,8 @@ def main():
             _, instock = notifyInstock(watch[0], prodID = watch[1], combID = watch[2], checkInStore = watch[3], checkOnline = watch[4])
             if instock:
                 googleSheetsAPI.removeWatch(SCRIPT_ID, service, watch[0], watch[1], watch[2], watch[3], watch[4])
-    except:
-        sendErrorEmail()
+    except Exception as e:
+        sendErrorEmail(e)
 
 if __name__ == '__main__':
     main()

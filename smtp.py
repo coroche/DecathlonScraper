@@ -25,11 +25,12 @@ def sendEmail(html, receiver_email, subject):
         server.login(sender_email, password)
         server.sendmail(sender_email, receiver_email, message.as_string())
 
-def sendErrorEmail():
+def sendErrorEmail(e):
     html = """\
 <html>
   <body>
     <p>Error checking decathlon stock</p>
+    <p>""" + str(e) + """</p>
   </body>
 </html>
 """
